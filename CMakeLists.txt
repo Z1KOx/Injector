@@ -18,6 +18,7 @@ set(SOURCES
     src/main.cpp
     src/render.cpp
     src/gui.cpp
+    src/fileDialog.cpp
 )
 
 include_directories(
