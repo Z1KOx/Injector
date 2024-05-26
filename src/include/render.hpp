@@ -1,4 +1,6 @@
-#pragma once
+#ifndef RENDER_HPP
+#define RENDER_HPP
+
 #include <d3d9.h>
 
 namespace render
@@ -39,3 +41,5 @@ namespace render
 	void EndRender() noexcept;
 	void Render() noexcept;
 }
+
+#endif // RENDER_HPP

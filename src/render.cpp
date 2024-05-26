@@ -241,21 +241,3 @@ void render::EndRender() noexcept
 	if (result == D3DERR_DEVICELOST && device->TestCooperativeLevel() == D3DERR_DEVICENOTRESET)
 		ResetDevice();
 }
-
-void render::Render() noexcept
-{
-	ImGui::SetNextWindowPos({ 0, 0 });
-	ImGui::SetNextWindowSize({ WIDTH, HEIGHT });
-	ImGui::Begin(
-		"Injector",
-		&isRunning,
-		ImGuiWindowFlags_NoResize |
-		ImGuiWindowFlags_NoSavedSettings |
-		ImGuiWindowFlags_NoCollapse |
-		ImGuiWindowFlags_NoMove
-	);
-
-	ImGui::Button("Inject");
-
-	ImGui::End();
-}

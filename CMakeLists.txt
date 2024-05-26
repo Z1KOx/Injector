@@ -17,6 +17,7 @@ set(IMGUI_SOURCES
 set(SOURCES
     src/main.cpp
     src/render.cpp
+    src/gui.cpp
 )
 
 include_directories(
