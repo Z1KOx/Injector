@@ -1,0 +1,3 @@
+C:/Users/admin/source/repos/Injector/out/build/x86-release/CMakeFiles/Injector.dir
+C:/Users/admin/source/repos/Injector/out/build/x86-release/CMakeFiles/edit_cache.dir
+C:/Users/admin/source/repos/Injector/out/build/x86-release/CMakeFiles/rebuild_cache.dir
