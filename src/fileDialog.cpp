@@ -1,6 +1,12 @@
 #include "include/fileDialog.hpp"
 
-FileDialog::FileDialog() {
+void FileDialog::open() noexcept
+{
+	initilize();
+}
+
+void FileDialog::initilize() noexcept
+{
 	ZeroMemory(&m_ofn, sizeof(m_ofn));
 	m_ofn.lStructSize = sizeof(m_ofn);
 	m_ofn.hwndOwner = NULL;
@@ -15,11 +21,11 @@ FileDialog::FileDialog() {
 	m_ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 }
 
-std::string FileDialog::OpenFileDialog() noexcept {
+const char* FileDialog::getPath() noexcept {
 	if (GetOpenFileName(&m_ofn) == TRUE) {
-		return std::string(m_ofn.lpstrFile);
+		return (m_ofn.lpstrFile);
 	}
 	else {
-		return std::string();
+		return "Failed to get dll path";
 	}
 }

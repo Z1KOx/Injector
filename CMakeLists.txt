@@ -19,6 +19,7 @@ set(SOURCES
     src/render.cpp
     src/gui.cpp
     src/fileDialog.cpp
+    src/injector.cpp
 )
 
 include_directories(

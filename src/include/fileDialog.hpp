@@ -2,18 +2,14 @@
 #define FILEDIALOG_HPP
 
 #include <windows.h>
-#include <string>
 
 class FileDialog {
 public:
-	FileDialog();
+	void open()      noexcept;
+	void initilize() noexcept;
 
-	~FileDialog() noexcept { };
+	[[nodiscard]] const char* getPath() noexcept;
 
-	std::string OpenFileDialog() noexcept;
-
-	FileDialog(const FileDialog& other) = delete;
-	FileDialog& operator=(const FileDialog& other) = delete;
 private:
 	OPENFILENAME m_ofn{ 0 };
 	char m_szFile[260]{ 0 };

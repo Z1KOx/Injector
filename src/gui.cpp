@@ -1,29 +1,33 @@
 #include "render.hpp"
 #include "fileDialog.hpp"
+#include "injector.hpp"
 
 #include "..\..\dependencies\imgui\imgui.h"
 
 void render::Render() noexcept
 {
-	ImGui::SetNextWindowPos({ 0, 0 });
-	ImGui::SetNextWindowSize({ WIDTH, HEIGHT });
-	ImGui::Begin(
-		"API Helper",
-		&render::isRunning,
-		ImGuiWindowFlags_NoResize |
-		ImGuiWindowFlags_NoSavedSettings |
-		ImGuiWindowFlags_NoCollapse
-	);
+    ImGui::SetNextWindowPos({ 0, 0 });
+    ImGui::SetNextWindowSize({ WIDTH, HEIGHT });
+    ImGui::Begin(
+        "API Helper",
+        &render::isRunning,
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoSavedSettings |
+        ImGuiWindowFlags_NoCollapse
+    );
 
-	static std::string dllPath{ "" };
+    FileDialog dialog;
 
-	if (ImGui::Button("Select DLL", { 200.f, 25.f })) {
-		FileDialog fileDialog;
-		dllPath = fileDialog.OpenFileDialog();
-	}
+    if (ImGui::Button("Inject BTN", { 200.f, 25.f }))
+    {
+        dialog.open();
 
-	ImGui::SameLine();
-	ImGui::Text("%s", dllPath);
+        const char* dllPath = dialog.getPath();
+        const char* procName = "ac_client.exe";
 
-	ImGui::End();
+        Injector injector(dllPath, procName);
+        injector.injectDll();
+    }
+
+    ImGui::End();
 }
