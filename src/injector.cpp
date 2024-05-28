@@ -28,6 +28,7 @@ Injector::~Injector() noexcept
 void Injector::injectDll() noexcept
 {
     getPID();
+    m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, true, m_PID);
 
     m_lpBaseAddress = VirtualAllocEx(
         m_hProcess,
@@ -69,35 +70,27 @@ void Injector::injectDll() noexcept
 
 void Injector::getPID() noexcept
 {
-    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    assert(hSnapShot != INVALID_HANDLE_VALUE && "Failed to create snapshot of processes");
 
-    assert(hSnapshot != INVALID_HANDLE_VALUE && "Failed to create snapshot of processes");
+    PROCESSENTRY32 pe;
+    pe.dwSize = sizeof(pe);
 
-    PROCESSENTRY32 entry;
-    entry.dwSize = sizeof(entry);
+    bool found{ false };
+    for (bool process = Process32First(hSnapShot, &pe); process; process = Process32Next(hSnapShot, &pe)) {
+        if (!_stricmp(pe.szExeFile, m_procName) == 0)
+            continue;
 
-    if (!Process32First(hSnapshot, &entry)) {
-        assert(false && "Failed to retrieve the first process entry");
-        CloseHandle(hSnapshot);
-        return;
+        m_PID = pe.th32ProcessID; 
+        found = true;
+        break;
     }
 
-    do {
-        if (_stricmp(entry.szExeFile, m_procName) == 0) {
-            m_PID = entry.th32ProcessID;
-            CloseHandle(hSnapshot);
-            
-            m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_PID);
-            if (m_hProcess == nullptr) {
-                m_lastErrorCode = ErrorCode::OpenProcessFailed;
-            }
-            return;
-        }
-    } while (Process32Next(hSnapshot, &entry));
+    if (!found) {
+        [[maybe_unused]] std::stringstream oss;
+        oss << "Process " << m_procName << " not found.";
+        MessageBox(nullptr, oss.str().c_str(), "PROCESS NOT FOUND", MB_OK | MB_ICONERROR);
+    }
 
-    [[maybe_unused]] std::stringstream oss;
-    oss << "Process " << m_procName << " not found.";
-    MessageBox(nullptr, oss.str().c_str(), "PROCESS NOT FOUND", MB_OK | MB_ICONERROR);
-
-    CloseHandle(hSnapshot);
+    CloseHandle(hSnapShot);
 }
