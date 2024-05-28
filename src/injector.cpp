@@ -1,22 +1,25 @@
 #include "injector.hpp"
 
 #include <TlHelp32.h>
-#include <cassert>
 #include <sstream>
 
+#define CREATE_THREAD(process, baseAddress) \
+    __pragma(warning(push)) \
+    __pragma(warning(disable:6387)) \
+    CreateRemoteThread((process), nullptr, 0, \
+    reinterpret_cast<LPTHREAD_START_ROUTINE>(GetProcAddress(GetModuleHandleA("kernel32.dll"), "LoadLibraryA")), \
+    (baseAddress), 0, nullptr) \
+    __pragma(warning(pop))
+
+
+
 Injector::Injector(const char* dllPath, const char* procName)
-    : m_dllPath(dllPath), m_procName(procName)
+    : m_dllPath(dllPath), m_procName(procName) 
 {
-    if (dllPath == nullptr || procName == nullptr) {
-        m_lastErrorCode = ErrorCode::OpenProcessFailed;
-        return;
-    }
 }
 
 Injector::~Injector() noexcept
 {
-    MessageBeep(MB_OK);
-
     if (m_hThread != nullptr) {
         CloseHandle(m_hThread);
     }
@@ -25,72 +28,114 @@ Injector::~Injector() noexcept
     }
 }
 
-void Injector::injectDll() noexcept
-{
-    getPID();
-    m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, true, m_PID);
 
-    m_lpBaseAddress = VirtualAllocEx(
-        m_hProcess,
-        nullptr,
-        strlen(m_dllPath) + 1,
-        MEM_COMMIT,
-        PAGE_READWRITE);
-    if (m_lpBaseAddress == nullptr) {
-        m_lastErrorCode = ErrorCode::VirtualAllocExFailed;
-        return;
-    }
 
-    if (!WriteProcessMemory(
-        m_hProcess,
-        m_lpBaseAddress,
-        m_dllPath,
-        strlen(m_dllPath) + 1,
-        nullptr)) {
-        m_lastErrorCode = ErrorCode::WriteProcessMemoryFailed;
-        return;
-    }
-
-    m_hThread = CreateRemoteThread(
-        m_hProcess,
-        nullptr,
-        0,
-        reinterpret_cast<LPTHREAD_START_ROUTINE>(GetProcAddress(M_KERNEL32_BASE, "LoadLibraryA")),
-        m_lpBaseAddress,
-        0,
-        nullptr);
-    if (m_hThread == nullptr) {
-        m_lastErrorCode = ErrorCode::CreateRemoteThreadFailed;
-        return;
-    }
-
-    WaitForSingleObject(m_hThread, INFINITE);
-    CloseHandle(m_hThread);
-}
-
-void Injector::getPID() noexcept
+void Injector::obtainPID() noexcept
 {
     HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    assert(hSnapShot != INVALID_HANDLE_VALUE && "Failed to create snapshot of processes");
+    if (hSnapShot == INVALID_HANDLE_VALUE) {
+        showError("Failed to create snapshot of processes", "Snapshot Error");
+        return;
+    }
 
     PROCESSENTRY32 pe;
     pe.dwSize = sizeof(pe);
 
     bool found{ false };
-    for (bool process = Process32First(hSnapShot, &pe); process; process = Process32Next(hSnapShot, &pe)) {
-        if (!_stricmp(pe.szExeFile, m_procName) == 0)
+    for (bool process = Process32First(hSnapShot, &pe); process; process = Process32Next(hSnapShot, &pe))
+    {
+        if (_stricmp(pe.szExeFile, m_procName))
             continue;
 
-        m_PID = pe.th32ProcessID; 
+        m_PID = pe.th32ProcessID;
         found = true;
         break;
     }
 
-    if (!found) {
-        [[maybe_unused]] std::stringstream oss;
-        oss << "Process " << m_procName << " not found.";
-        MessageBox(nullptr, oss.str().c_str(), "PROCESS NOT FOUND", MB_OK | MB_ICONERROR);
-    }
-
     CloseHandle(hSnapShot);
+
+    if (!found) {
+        showError("Process not found", "Process Error");
+    }
+}
+
+
+
+[[nodiscard]] bool Injector::openProcess()
+{
+    m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, TRUE, m_PID);
+    if (m_hProcess == nullptr) {
+        showError("OpenProcess failed", "Process Error");
+        return false;
+    }
+    return true;
+}
+
+[[nodiscard]] bool Injector::allocateMemory()
+{
+    m_lpBaseAddress = VirtualAllocEx(m_hProcess, nullptr, strlen(m_dllPath) + 1, MEM_COMMIT, PAGE_READWRITE);
+    if (m_lpBaseAddress == nullptr) {
+        showError("VirtualAllocEx failed", "Memory Error");
+        return false;
+    }
+    return true;
+}
+
+[[nodiscard]] bool Injector::writeMemory() const
+{
+    if (!WriteProcessMemory(m_hProcess, m_lpBaseAddress, m_dllPath, strlen(m_dllPath) + 1, nullptr)) {
+        showError("WriteProcessMemory failed", "Memory Error");
+        return false;
+    }
+    return true;
+}
+
+[[nodiscard]] bool Injector::createRemoteThread()
+{
+    m_hThread = CREATE_THREAD(m_hProcess, m_lpBaseAddress);
+    if (m_hThread == nullptr) {
+        showError("CreateRemoteThread failed", "Thread Error");
+        return false;
+    }
+    return true;
+}
+
+void Injector::injectDll() noexcept {
+    obtainPID();
+
+    if (!openProcess()) return;
+    if (!allocateMemory()) return;
+    if (!writeMemory()) return;
+    if (!createRemoteThread()) return;
+
+    if (m_hThread) {
+        WaitForSingleObject(m_hThread, INFINITE);
+        CloseHandle(m_hThread);
+    }
+}
+
+
+
+[[nodiscard]] std::string Injector::getLastErrorAsString() const noexcept
+{
+    DWORD errorMsgID = ::GetLastError();
+    if (errorMsgID == 0)
+        return std::string();
+
+    LPSTR msgBuffer{ nullptr };
+    size_t size = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+                                FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, errorMsgID,
+                                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&msgBuffer, 0, nullptr);
+
+    std::string msg(msgBuffer, size);
+    LocalFree(msgBuffer);
+    return msg;
+}
+
+void Injector::showError(const std::string& msg, const std::string& title) const noexcept
+{
+    std::ostringstream oss;
+    oss << msg << "\nError code: " << GetLastError() << '\n' << getLastErrorAsString();
+    MessageBox(nullptr, oss.str().c_str(), title.c_str(), MB_OK | MB_ICONERROR);
+    ExitProcess(EXIT_FAILURE);
 }

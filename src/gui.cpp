@@ -18,7 +18,7 @@ void render::Render() noexcept
 
     FileDialog dialog;
 
-    if (ImGui::Button("Inject BTN", { 200.f, 25.f }))
+    if (ImGui::Button("Inject a dll", { 200.f, 25.f }))
     {
         dialog.open();
 
