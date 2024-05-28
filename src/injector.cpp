@@ -20,18 +20,17 @@ Injector::Injector(const char* dllPath, const char* procName)
 
 Injector::~Injector() noexcept
 {
-    if (m_hThread != nullptr) {
-        CloseHandle(m_hThread);
-    }
-    if (m_hProcess != nullptr) {
-        CloseHandle(m_hProcess);
-    }
+    if (m_hThread)  CloseHandle(m_hThread);
+    if (m_hProcess) CloseHandle(m_hProcess);
 }
 
 
 
 void Injector::obtainPID() noexcept
 {
+    m_openingDLL = "Opening the DLL";
+    m_obtainingPID = "Obtaining PID";
+
     HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (hSnapShot == INVALID_HANDLE_VALUE) {
         showError("Failed to create snapshot of processes", "Snapshot Error");
@@ -61,28 +60,34 @@ void Injector::obtainPID() noexcept
 
 
 
-[[nodiscard]] bool Injector::openProcess()
+bool Injector::openProcess()
 {
+    m_openingTargetProc = "Opening target process";
+
     m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, TRUE, m_PID);
-    if (m_hProcess == nullptr) {
+    if (!m_hProcess) {
         showError("OpenProcess failed", "Process Error");
         return false;
     }
     return true;
 }
 
-[[nodiscard]] bool Injector::allocateMemory()
+bool Injector::allocateMemory()
 {
+    m_allocMem = "Allocating memory";
+
     m_lpBaseAddress = VirtualAllocEx(m_hProcess, nullptr, strlen(m_dllPath) + 1, MEM_COMMIT, PAGE_READWRITE);
-    if (m_lpBaseAddress == nullptr) {
+    if (!m_lpBaseAddress) {
         showError("VirtualAllocEx failed", "Memory Error");
         return false;
     }
     return true;
 }
 
-[[nodiscard]] bool Injector::writeMemory() const
+bool Injector::writeMemory()
 {
+    m_writeMem = "Writing to memory";
+
     if (!WriteProcessMemory(m_hProcess, m_lpBaseAddress, m_dllPath, strlen(m_dllPath) + 1, nullptr)) {
         showError("WriteProcessMemory failed", "Memory Error");
         return false;
@@ -90,10 +95,12 @@ void Injector::obtainPID() noexcept
     return true;
 }
 
-[[nodiscard]] bool Injector::createRemoteThread()
+bool Injector::createRemoteThread()
 {
+    m_createRemoteThread = "Creating remote thread";
+
     m_hThread = CREATE_THREAD(m_hProcess, m_lpBaseAddress);
-    if (m_hThread == nullptr) {
+    if (!m_hThread) {
         showError("CreateRemoteThread failed", "Thread Error");
         return false;
     }
@@ -103,15 +110,18 @@ void Injector::obtainPID() noexcept
 void Injector::injectDll() noexcept {
     obtainPID();
 
-    if (!openProcess()) return;
-    if (!allocateMemory()) return;
-    if (!writeMemory()) return;
+    if (!openProcess())        return;
+    if (!allocateMemory())     return;
+    if (!writeMemory())        return;
     if (!createRemoteThread()) return;
 
+    m_threadFinish = "Waiting for thread to finish";
     if (m_hThread) {
         WaitForSingleObject(m_hThread, INFINITE);
         CloseHandle(m_hThread);
     }
+
+    m_successfulInject = "Injection successful";
 }
 
 
