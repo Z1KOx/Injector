@@ -7,24 +7,30 @@
 
 class Injector {
 public:
-    explicit Injector(const char* dllPath, const char* procName);
+    explicit Injector(const char* dllPath, const char* procName) noexcept;
     ~Injector() noexcept;
 
+    // Deleted copy constructor and copy assignment operator to prevent copying
     Injector(const Injector& other) = delete;
     Injector& operator=(const Injector& other) = delete;
 
-    void injectDll() noexcept;
+    // Executes the DLL injection process
+    void injectDll();
     
-    [[nodiscard]] std::vector<const char*> getProgress() const { return m_progress; }
+    // Retrieves the progress of the injection process
+    [[nodiscard]] const std::vector<std::string>& getProgress() const noexcept { return m_progress; }
 
 private:
-    void obtainPID() noexcept;
+    // Obtains the process ID (PID) of the target process
+    void obtainPID();
 
-    bool openProcess();
-    bool allocateMemory();
-    bool writeMemory();
-    bool createRemoteThread();
+    // Injection process functions
+    void openProcess();
+    void allocateMemory();
+    void writeMemory();
+    void createRemoteThread();
 
+    // Utility functions for handling errors
     [[nodiscard]] std::string getLastErrorAsString() const noexcept;
     void showError(const std::string& msg, const std::string& title) const noexcept;
 
@@ -38,7 +44,7 @@ private:
     HANDLE m_hThread{ nullptr };
     void* m_lpBaseAddress{ nullptr };
 
-    std::vector<const char*> m_progress;
+    std::vector<std::string> m_progress;
 };
 
 #endif

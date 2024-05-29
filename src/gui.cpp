@@ -18,14 +18,14 @@ void render::Render() noexcept
 
 	FileDialog dialog;
 
-	static std::vector<const char*> progress;
+	static std::vector<std::string> progress;
 
 	if (ImGui::Button("Inject a dll", { 200.f, 25.f }))
 	{
 		dialog.open();
 
-		const char* dllPath = dialog.getPath();
-		const char* procName = "ac_client.exe";
+		auto dllPath = dialog.getPath();
+		auto procName = "ac_client.exe";
 
 		Injector injector(dllPath, procName);
 		injector.injectDll();
@@ -35,7 +35,7 @@ void render::Render() noexcept
 
 	if (!progress.empty()) {
 		for (const auto& status : progress) {
-			ImGui::Text("%s", status);
+			ImGui::Text("%s", status.c_str());
 		}
 	}
 
