@@ -2,11 +2,6 @@
 
 void FileDialog::open() noexcept
 {
-	initilize();
-}
-
-void FileDialog::initilize() noexcept
-{
 	ZeroMemory(&m_ofn, sizeof(m_ofn));
 	m_ofn.lStructSize = sizeof(m_ofn);
 	m_ofn.hwndOwner = NULL;
@@ -23,7 +18,7 @@ void FileDialog::initilize() noexcept
 
 const char* FileDialog::getPath() noexcept {
 	if (GetOpenFileName(&m_ofn) == TRUE) {
-		return (m_ofn.lpstrFile);
+		return m_ofn.lpstrFile;
 	}
 	else {
 		return "Failed to get dll path";

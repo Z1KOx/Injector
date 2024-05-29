@@ -5,9 +5,7 @@
 
 class FileDialog {
 public:
-	void open()      noexcept;
-	void initilize() noexcept;
-
+	void open() noexcept;
 	[[nodiscard]] const char* getPath() noexcept;
 
 private:
