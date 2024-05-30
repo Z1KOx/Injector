@@ -3,10 +3,10 @@
 #include <thread>
 
 int __stdcall wWinMain(
-	HINSTANCE instance,
-	HINSTANCE previousInstance,
-	PWSTR arguments,
-	int commandShow)
+	HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	PWSTR lpCmdLine,
+	int nShowCmd)
 {
 	// create gui
 	render::CreateHWindow("Injector");

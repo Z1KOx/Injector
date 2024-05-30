@@ -60,7 +60,7 @@ void Injector::obtainPID()
 	m_progress.emplace_back("Obtaining PID");
 
 	// Create a snapshot of currently running processes
-	auto hSnapShot{ CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0) };
+	const auto hSnapShot{ CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0) };
 	if (hSnapShot == INVALID_HANDLE_VALUE) {
 		throw std::runtime_error("Failed to create snapshot of processes");
 	}
@@ -74,7 +74,7 @@ void Injector::obtainPID()
 	for (bool process = Process32First(hSnapShot, &pe); process; process = Process32Next(hSnapShot, &pe))
 	{
 		// If the process is not found
-		if (_stricmp(pe.szExeFile, m_procName))
+		if (_stricmp(pe.szExeFile, m_procName) != 0)
 			continue;
 
 		// Assign m_PID to the found PID
@@ -140,15 +140,15 @@ void Injector::createRemoteThread()
 [[nodiscard]] std::string Injector::getLastErrorAsString() const noexcept
 {
 	// Retrieve the error message ID
-	auto errorMsgID = ::GetLastError();
+	const auto errorMsgID = ::GetLastError();
 	if (errorMsgID == 0)
-		return std::string();
+		return "errorMsgID = 0";
 
 	// Retrieve the error message string
 	LPSTR msgBuffer{ nullptr };
-	size_t size = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+	const size_t size = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
 		FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, errorMsgID,
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&msgBuffer, 0, nullptr);
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPSTR>(&msgBuffer), 0, nullptr);
 
 	// Convert the message to a std::string
 	std::string msg(msgBuffer, size);

@@ -4,8 +4,13 @@
 
 #include "..\..\dependencies\imgui\imgui.h"
 
+
+
 void render::Render() noexcept
 {
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
 	ImGui::SetNextWindowPos({ 0, 0 });
 	ImGui::SetNextWindowSize({ WIDTH, HEIGHT });
 	ImGui::Begin(
@@ -13,19 +18,24 @@ void render::Render() noexcept
 		&render::isRunning,
 		ImGuiWindowFlags_NoResize |
 		ImGuiWindowFlags_NoSavedSettings |
-		ImGuiWindowFlags_NoCollapse
+		ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoTitleBar
 	);
 
-	FileDialog dialog;
+	const auto drawList = ImGui::GetWindowDrawList();
+	drawList->AddLine({ 0.f, 20.f }, {400.f, 20.f }, IM_COL32(62, 62, 71, 255) ,1.f);
 
 	static std::vector<std::string> progress;
 
-	if (ImGui::Button("Inject a dll", { 200.f, 25.f }))
+	ImGui::SetCursorPos({ 5.f, 260.f });
+	if (ImGui::Button("Inject a dll", { 390.f, 40.f }))
 	{
+		FileDialog dialog;
+
 		dialog.open();
 
-		auto dllPath = dialog.getPath();
-		auto procName = "ac_client.exe";
+		const auto dllPath = dialog.getPath();
+		const auto procName = "ac_client.exe";
 
 		Injector injector(dllPath, procName);
 		injector.injectDll();
@@ -33,10 +43,25 @@ void render::Render() noexcept
 		progress = injector.getProgress();
 	}
 
-	if (!progress.empty()) {
-		for (const auto& status : progress) {
-			ImGui::Text("%s", status.c_str());
+	ImGui::SetCursorPos({ 5.f, 305 });
+	if(ImGui::Button("Exit", {390.f, 40.f}))
+		PostQuitMessage(0);
+
+	ImGui::SetCursorPos({ 405.f, 25.f });
+	ImGui::Text("Console");
+
+	ImGui::SetNextWindowPos({ 400.f, 20.f });
+	ImGui::BeginChild("ConsoleBackground", { 295.f, 325.f }, ImGuiChildFlags_Border);
+	{
+		ImGui::SetCursorPos({ 5.f, 25 });
+		if (!progress.empty()) {
+			for (const auto& status : progress) {
+				ImGui::SetCursorPosX(5.f);
+				ImGui::Text("%s", status.c_str());
+			}
 		}
+
+		ImGui::EndChild();
 	}
 
 	ImGui::End();

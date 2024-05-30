@@ -10,9 +10,11 @@ public:
     explicit Injector(const char* dllPath, const char* procName) noexcept;
     ~Injector() noexcept;
 
-    // Deleted copy constructor and copy assignment operator to prevent copying
+    // Deleted copy constructor, copy assignment operator, move constructor, and move assignment operator
     Injector(const Injector& other) = delete;
+    Injector(Injector&& other) = delete;
     Injector& operator=(const Injector& other) = delete;
+    Injector& operator=(Injector&& other) = delete;
 
     // Executes the DLL injection process
     void injectDll();
@@ -47,4 +49,4 @@ private:
     std::vector<std::string> m_progress;
 };
 
-#endif
+#endif // INJECTOR_HPP
