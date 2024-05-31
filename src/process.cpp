@@ -50,5 +50,5 @@ void Process::getAllNoneWindowsProcesses()
 
 constexpr std::vector<std::string> Process::windowsSystemProcessNames()
 {
-	return { "SystemProcess1", "SystemProcess2", "SystemProcess3", "injector.exe" };
+	return { "SystemProcess", "injector.exe" };
 }

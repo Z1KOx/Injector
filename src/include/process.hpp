@@ -14,7 +14,7 @@ public:
     Process& operator=(const Process& other) = delete;
     Process& operator=(Process&& other) = delete;
 
-    [[nodiscard]] std::vector<std::string> getCurrent() const { return m_runningProcesses; }
+    [[nodiscard]] const std::vector<std::string>& getCurrent() const { return m_runningProcesses; }
 
 private:
     bool isSystemProcess(const std::string& processName) const;
