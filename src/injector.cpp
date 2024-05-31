@@ -32,7 +32,8 @@ void Injector::injectDll()
 	m_progress.emplace_back("Opening the DLL");
 
 	// Injection process
-	try {
+	try
+	{
 		obtainPID();          // Obtain the Process ID of the target application
 		openProcess();        // Open a handle to the target process
 		allocateMemory();     // Allocate memory within the target process
@@ -44,7 +45,8 @@ void Injector::injectDll()
 	}
 
 	// Thread process
-	if (m_hThread) {
+	if (m_hThread)
+	{
 		m_progress.emplace_back("Waiting for thread to finish");
 		
 		// Wait for the remote thread to complete its execution
@@ -61,9 +63,8 @@ void Injector::obtainPID()
 
 	// Create a snapshot of currently running processes
 	const auto hSnapShot{ CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0) };
-	if (hSnapShot == INVALID_HANDLE_VALUE) {
+	if (hSnapShot == INVALID_HANDLE_VALUE)
 		throw std::runtime_error("Failed to create snapshot of processes");
-	}
 
 	// Initialize pe struct
 	PROCESSENTRY32 pe;
@@ -85,9 +86,8 @@ void Injector::obtainPID()
 
 	CloseHandle(hSnapShot);
 
-	if (!found) {
+	if (!found)
 		throw std::runtime_error("Process not found");
-	}
 }
 
 
@@ -98,9 +98,8 @@ void Injector::openProcess()
 
 	// Open a handle to the target process with all access rights
 	m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, TRUE, m_PID);
-	if (!m_hProcess) {
+	if (!m_hProcess)
 		throw std::runtime_error("OpenProcess failed");
-	}
 }
 
 void Injector::allocateMemory()
@@ -109,9 +108,8 @@ void Injector::allocateMemory()
 
 	// Allocate memory in the target process for our DLL
 	m_lpBaseAddress = VirtualAllocEx(m_hProcess, nullptr, strlen(m_dllPath) + 1, MEM_COMMIT, PAGE_READWRITE);
-	if (!m_lpBaseAddress) {
+	if (!m_lpBaseAddress)
 		throw std::runtime_error("VirtualAllocEx failed");
-	}
 }
 
 void Injector::writeMemory()
@@ -119,9 +117,8 @@ void Injector::writeMemory()
 	m_progress.emplace_back("Writing to memory");
 
 	// Write our DLL memory into the target process
-	if (!WriteProcessMemory(m_hProcess, m_lpBaseAddress, m_dllPath, strlen(m_dllPath) + 1, nullptr)) {
+	if (!WriteProcessMemory(m_hProcess, m_lpBaseAddress, m_dllPath, strlen(m_dllPath) + 1, nullptr))
 		throw std::runtime_error("WriteProcessMemory failed");
-	}
 }
 
 void Injector::createRemoteThread()
@@ -130,9 +127,8 @@ void Injector::createRemoteThread()
 
 	// Create a thread inside the target process so our DLL can run there
 	m_hThread = CREATE_THREAD(m_hProcess, m_lpBaseAddress);
-	if (!m_hThread) {
+	if (!m_hThread)
 		throw std::runtime_error("CreateRemoteThread failed");
-	}
 }
 
 

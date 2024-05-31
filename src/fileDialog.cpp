@@ -16,11 +16,10 @@ void FileDialog::open() noexcept
 	m_ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 }
 
-const char* FileDialog::getPath() noexcept {
-	if (GetOpenFileName(&m_ofn) == TRUE) {
+const char* FileDialog::getPath() noexcept
+{
+	if (GetOpenFileName(&m_ofn) == TRUE)
 		return m_ofn.lpstrFile;
-	}
-	else {
+	else
 		return "Failed to get dll path";
-	}
 }

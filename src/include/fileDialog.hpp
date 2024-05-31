@@ -3,7 +3,8 @@
 
 #include <windows.h>
 
-class FileDialog {
+class FileDialog
+{
 public:
 	void open() noexcept;
 	[[nodiscard]] const char* getPath() noexcept;

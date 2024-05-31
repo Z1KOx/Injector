@@ -5,7 +5,8 @@
 #include <string>
 #include <vector>
 
-class Injector {
+class Injector
+{
 public:
     explicit Injector(const char* dllPath, const char* procName) noexcept;
     ~Injector() noexcept;
@@ -18,7 +19,7 @@ public:
 
     // Executes the DLL injection process
     void injectDll();
-    
+
     // Retrieves the progress of the injection process
     [[nodiscard]] const std::vector<std::string>& getProgress() const noexcept { return m_progress; }
 
@@ -35,14 +36,11 @@ private:
     // Utility functions for handling errors
     [[nodiscard]] std::string getLastErrorAsString() const noexcept;
     void showError(const std::string& msg, const std::string& title) const noexcept;
-
 private:
     const char* m_dllPath{ nullptr };
     const char* m_procName{ nullptr };
-
     DWORD m_PID{ 0 };
     HANDLE m_hProcess{ nullptr };
-
     HANDLE m_hThread{ nullptr };
     void* m_lpBaseAddress{ nullptr };
 

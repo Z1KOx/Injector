@@ -1,8 +1,11 @@
 #include "render.hpp"
 #include "fileDialog.hpp"
 #include "injector.hpp"
+#include "process.hpp"
 
 #include "..\..\dependencies\imgui\imgui.h"
+
+#include <iostream>
 
 void drawMenuBar()
 {
@@ -79,10 +82,25 @@ void render::Render() noexcept
 	drawMenuBar();
 
 	static std::vector<std::string> progress{};
-
 	drawInjectButton(progress);
 	drawExitButton();
 	drawConsole(progress);
+
+	Process proc;
+	std::vector<std::string> runningProcesses = proc.getCurrent();
+
+	AllocConsole();
+	FILE* f;
+	freopen_s(&f, "CONOUT$", "w", stdout);
+
+	static bool print{ true };
+	if (print)
+	{
+		for (const auto& i : runningProcesses)
+			std::cout << i << '\n';
+
+		print = false;
+	}
 
 	ImGui::End();
 }

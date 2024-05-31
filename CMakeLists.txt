@@ -31,6 +31,7 @@ set(SOURCES
     src/render.cpp
     src/gui.cpp
     src/fileDialog.cpp
+    src/process.cpp
     src/injector.cpp
 )
 
@@ -45,7 +46,7 @@ include_directories(
 add_executable(${PROJECT_NAME} WIN32 ${SOURCES} ${IMGUI_SOURCES})
 
 # Link required libraries
-target_link_libraries(${PROJECT_NAME} d3d9)
+target_link_libraries(${PROJECT_NAME} d3d9 kernel32)
 
 # Set compile features
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
