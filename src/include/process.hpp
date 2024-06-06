@@ -1,30 +1,32 @@
 #ifndef PROCESS_HPP
 #define PROCESS_HPP
 
-#include <vector>
+#include <set>
 #include <string>
+#include <windows.h>
 
 class Process
 {
 public:
-    Process();
+    Process() = default;
 
     Process(const Process& other) = delete;
     Process(Process&& other) = delete;
     Process& operator=(const Process& other) = delete;
     Process& operator=(Process&& other) = delete;
 
-    [[nodiscard]] const std::vector<std::string>& getCurrent() const { return m_runningProcesses; }
+public:
+    struct ProcessInfo
+	{
+        CHAR name[MAX_PATH];
+        DWORD pid;
 
-private:
-    bool isSystemProcess(const std::string& processName) const;
-    void getAllNoneWindowsProcesses();
-    static constexpr std::vector<std::string> windowsSystemProcessNames();
+        bool operator<(const ProcessInfo& other) const {
+            return std::string(name) < std::string(other.name);
+        }
+    };
 
-private:
-    std::vector<std::string> m_runningProcesses;
-    std::vector<std::string> m_systemProcess;
-    std::string m_processName;
+    [[nodiscard]] std::set<ProcessInfo> processInformation() const;
 };
 
 #endif // PROCESS_HPP
