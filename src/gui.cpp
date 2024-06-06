@@ -35,8 +35,9 @@ void drawInjectButton(std::vector<std::string>& progress)
 void drawExitButton()
 {
 	ImGui::SetCursorPos({ 5.f, 305.f });
-	if (ImGui::Button("Exit", { 190.f, 40.f }))
+	if (ImGui::Button("Exit", { 190.f, 40.f })) {
 		render::isRunning = false;
+	}
 }
 
 void drawConsole(const std::vector<std::string>& progress, const std::string& selectedProc)
@@ -123,7 +124,8 @@ void drawRefreshButton(std::set<Process::ProcessInfo>& processInfo)
 	}
 }
 
-void render::Render() noexcept {
+void render::Render() noexcept
+{
 #define CREATE_CONSOLE 0
 #if CREATE_CONSOLE
 	AllocConsole();

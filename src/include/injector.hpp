@@ -33,7 +33,10 @@ private:
     void writeMemory();
     void createRemoteThread();
 
-    // Utility functions for handling errors
+    // Utility functions
+    [[nodiscard]] size_t getDllSize(const std::string& dllPath) const noexcept;
+
+    // Error handling functions
     [[nodiscard]] std::string getLastErrorAsString() const noexcept;
     void showError(const std::string& msg, const std::string& title) const noexcept;
 private:

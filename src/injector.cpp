@@ -2,6 +2,7 @@
 
 #include <TlHelp32.h>
 #include <sstream>
+#include <fstream>
 
 
 
@@ -104,21 +105,36 @@ void Injector::openProcess()
 
 void Injector::allocateMemory()
 {
-	m_progress.emplace_back("Allocating memory");
-
 	// Allocate memory in the target process for our DLL
 	m_lpBaseAddress = VirtualAllocEx(m_hProcess, nullptr, strlen(m_dllPath) + 1, MEM_COMMIT, PAGE_READWRITE);
 	if (!m_lpBaseAddress)
 		throw std::runtime_error("VirtualAllocEx failed");
+
+	std::stringstream ss;
+	ss << "0x" << std::hex << reinterpret_cast<uintptr_t>(m_lpBaseAddress);
+	const std::string addressString = ss.str();
+
+	m_progress.emplace_back("Allocated memory in ");
+	m_progress.back().append(addressString);
 }
 
 void Injector::writeMemory()
 {
-	m_progress.emplace_back("Writing to memory");
-
 	// Write our DLL memory into the target process
 	if (!WriteProcessMemory(m_hProcess, m_lpBaseAddress, m_dllPath, strlen(m_dllPath) + 1, nullptr))
 		throw std::runtime_error("WriteProcessMemory failed");
+
+	const size_t dllSize = getDllSize(m_dllPath);
+
+	const uintptr_t startAddress = reinterpret_cast<uintptr_t>(m_lpBaseAddress);
+	const uintptr_t endAddress = startAddress + dllSize;
+
+	std::stringstream ss;
+	ss << "0x" << std::hex << endAddress;
+	const std::string addressString = ss.str();
+
+	m_progress.emplace_back("Write until memory ");
+	m_progress.back().append(addressString);
 }
 
 void Injector::createRemoteThread()
@@ -131,7 +147,13 @@ void Injector::createRemoteThread()
 		throw std::runtime_error("CreateRemoteThread failed");
 }
 
-
+[[nodiscard]] size_t Injector::getDllSize(const std::string& dllPath) const noexcept
+{
+	struct stat fileStat;
+	if (stat(dllPath.c_str(), &fileStat) != 0)
+		throw std::runtime_error("Failed to get file size for DLL: " + dllPath);
+	return static_cast<size_t>(fileStat.st_size);
+}
 
 [[nodiscard]] std::string Injector::getLastErrorAsString() const noexcept
 {
