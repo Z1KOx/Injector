@@ -5,8 +5,6 @@
 
 #include "..\..\dependencies\imgui\imgui.h"
 
-#include <iostream>
-
 void drawMenuBar()
 {
 	ImGui::SetCursorPos({ 5.f, 2.f });
@@ -14,7 +12,6 @@ void drawMenuBar()
 
 	const auto drawList = ImGui::GetWindowDrawList();
 	drawList->AddLine({ 0.f, 20.f }, { 700.f, 20.f }, IM_COL32(255, 0, 0, 255), 1.f);
-
 }
 
 void drawInjectButton(std::vector<std::string>& progress)
@@ -37,26 +34,26 @@ void drawInjectButton(std::vector<std::string>& progress)
 
 void drawExitButton()
 {
-	ImGui::SetCursorPos({ 5.f, 305 });
-	if (ImGui::Button("Exit", { 395.f, 40.f }))
+	ImGui::SetCursorPos({ 5.f, 305.f });
+	if (ImGui::Button("Exit", { 190.f, 40.f }))
 		render::isRunning = false;
 }
 
-void drawConsole(const std::vector<std::string>& progress, const std::string& selected)
+void drawConsole(const std::vector<std::string>& progress, const std::string& selectedProc)
 {
-	ImGui::SetCursorPos({ 410.f, 30.f });
+	ImGui::SetCursorPos({ 400.f, 28.f });
 	ImGui::Text("Console");
 
 	ImGui::SetNextWindowPos({ 400.f, 45.f });
 	ImGui::BeginChild("ConsoleBackground", { 295.f, 300.f }, ImGuiChildFlags_Border);
 	{
 		ImGui::SetCursorPos({ 5.f, 5.f });
-		if (!selected.empty()) {
-			ImGui::Text("Target: %s", selected.c_str());
+		if (!selectedProc.empty()) {
+			ImGui::Text("Target: %s", selectedProc.c_str());
 		}
 
 		if (!progress.empty()) {
-			for (const auto& status : progress) 
+			for (const auto& status : progress)
 			{
 				ImGui::SetCursorPosX(5.f);
 				ImGui::Text("%s", status.c_str());
@@ -67,34 +64,67 @@ void drawConsole(const std::vector<std::string>& progress, const std::string& se
 	}
 }
 
-[[nodiscard]] std::string drawProcessList(const std::set<Process::ProcessInfo>& processInfos)
+[[nodiscard]] std::string drawProcessList(const std::set<Process::ProcessInfo>& processInfo)
 {
-	ImGui::SetCursorPos({ 10.f, 30.f });
-	ImGui::Text("Process List");
+	static std::string selectedProc;
 
-	static std::string selected;
+	ImGui::SetCursorPos({ 5.f, 28.f });
+	ImGui::Text("Process List");
 
 	ImGui::SetCursorPos({ 5.f, 45.f });
 	ImGui::BeginChild("ProcessBg", { 390.f, 210.f }, ImGuiChildFlags_Border);
 	{
-		ImGui::SetCursorPosY(5.f);
+		ImGui::SetCursorPos({ 5.f, 7.f });
+		ImGui::Text("Name");
 
-		for (const auto& proc : processInfos)
+		ImGui::SetCursorPos({ 200.f, 7.f });
+		ImGui::Text("PID");
+
+		const auto drawList = ImGui::GetWindowDrawList();
+		drawList->AddLine({5.f, 68.f }, { 400.f, 68.f }, IM_COL32(62, 62, 71, 255), 1.f);
+
+		ImGui::SetCursorPos({ 0.f, 25.f });
+		ImGui::BeginChild("runningProcBg", { 400.f, 180.f });
 		{
-			ImGui::SetCursorPosX(5.f);
-			if (ImGui::Selectable(proc.name))
-				selected = proc.name;
+			ImGui::SetCursorPosY(3.f);
+
+			for (const auto& proc : processInfo)
+			{
+				ImGui::SetCursorPosX(5.f);
+				if (ImGui::Selectable(proc.name)) {
+					selectedProc = proc.name;
+				}
+				ImGui::SameLine(200);
+				ImGui::Text("%d", proc.pid);
+			}
+
+			ImGui::EndChild();
 		}
 
 		ImGui::EndChild();
 	}
 
-	return selected;
+	return selectedProc;
 }
 
-void render::Render() noexcept
+void drawRefreshButton(std::set<Process::ProcessInfo>& processInfo)
 {
-#define CREATE_CONSOLE 1
+	constexpr Process proc;
+	static auto refresh{ false };
+
+	ImGui::SetCursorPos({ 200.f, 305.f });
+	if (ImGui::Button("Refresh", {195.f, 40.f})) {
+		refresh = true;
+	}
+
+	if (refresh) {
+		processInfo = proc.processInformation();
+		refresh = false;
+	}
+}
+
+void render::Render() noexcept {
+#define CREATE_CONSOLE 0
 #if CREATE_CONSOLE
 	AllocConsole();
 	FILE* f;
@@ -115,16 +145,15 @@ void render::Render() noexcept
 		ImGuiWindowFlags_NoTitleBar
 	);
 
-	drawMenuBar();
+	constexpr Process proc;
+	static std::set<Process::ProcessInfo> processInfo = proc.processInformation();
+
+	drawRefreshButton(processInfo);
+	const auto selectedProc = drawProcessList(processInfo);
 
 	static std::vector<std::string> progress{};
-
-	constexpr Process proc;
-	const auto processInfos = proc.processInformation();
-
-	auto selected = drawProcessList(processInfos);
-
-	drawConsole(progress, selected);
+	drawMenuBar();
+	drawConsole(progress, selectedProc);
 	drawInjectButton(progress);
 	drawExitButton();
 
