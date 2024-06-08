@@ -23,14 +23,16 @@ Copy the DLL file path into the reserved memory space of the target process
 ### 5. Create a remote thread
 Generate a thread within the target process to load the DLL
 
-# How to use this injector?
+<img src="https://cdn.discordapp.com/attachments/847075046329679903/1248822119819903017/howbg_2.gif?ex=66650fbb&is=6663be3b&hm=e9cae8568db353b3ff14dde5e770bc4c6580c7686873c9f7d6adb028b86f4f09&" alt="Image could not be loaded" width="723" height="108">
+
 ### 1. Select a process
 Find the target process in the 'process list' and select it
 
 ### 2. Select your DLL
 Click on the 'inject' button and choose your DLL
 
-# Getting Started
+<img src="https://cdn.discordapp.com/attachments/847075046329679903/1248823018617176164/gg.gif?ex=66651091&is=6663bf11&hm=a3c3c3aac9f8d6db984f2f77e570bcde3ec62829fa04e70c75edfca4e71c6730&" alt="Image could not be loaded" width="540" height="88">
+
 ### 1. Clone this project using Git
 ```bash
 git clone https://github.com/Z1KOx/Injector.git
