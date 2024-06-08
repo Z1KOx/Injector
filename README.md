@@ -1,13 +1,13 @@
 <img src="https://cdn.discordapp.com/attachments/847075046329679903/1244424817801957437/brave-HSoN9lpqE5-unscreen.gif?ex=6664e26c&is=666390ec&hm=01f1e0d674580916c28fefc054374c0adbdaac910c460a288e096b6165ee5cfc&" alt="Image could not be loaded" width="474" height="146">
 
-#
 Injects for you a dll into a process
 
 > [!NOTE]
 > - This injector has been tested on the Windows operating system.
 > - To build this project, you need to have CMake installed. You can install it <a href="https://cmake.org/download/">here</a>
 
-# How does this work?
+<img src="https://cdn.discordapp.com/attachments/847075046329679903/1248821372713570455/howbg.gif?ex=66650f09&is=6663bd89&hm=19c2621bb98d2000143b5988e195f61b6b06e8753c7df2594015c615899baf2e&" alt="Image could not be loaded" width="728" height="108">
+
 ### 1. Identify the target process
 Determine the process where the DLL will be injected
 
