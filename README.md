@@ -29,3 +29,13 @@ Find the target process in the 'process list' and select it
 
 ### 2. Select your DLL
 Click on the 'inject' button and choose your DLL
+
+# Getting Started
+### 1. Clone this project using Git
+```bash
+git clone https://github.com/Z1KOx/Injector.git
+```
+- If you don't have Git installed, you can download it <a href="https://git-scm.com/downloads">here</a>
+
+### 2. Run build.bat
+This will compile and link the executable, and it will provide you with the path where the .exe file is located.
