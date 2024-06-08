@@ -25,7 +25,8 @@
 		"steamservice.exe", "cl.exe", "PowerToys.AdvancedPaste.exe", "PowerToys.AlwaysOnTop.exe", "PowerToys.Awake.exe", "PowerToys.ColorPickerUI.exe",
 		"PhoneExperienceHost.exe", "PowerToys.CropAndLock.exe", "PowerToys.FancyZones.exe", "PowerToys.Peek.UI.exe", "PowerToys.PowerLauncher.exe",
 		"PowerToys.PowerOCR.exe", "sppsvc.exe", "OpenConsole.exe", "SppExtComObj.Exe", "WindowsTerminal.exe", "GameBar.exe", "GameBarFTServer.exe",
-		"SecurityHealthService.exe", "Video.UI.exe", "SystemSettingsBroker.exe", "SearchProtocolHost.exe", "SearchFilterHost.exe", "DataExchangeHost.exe"
+		"SecurityHealthService.exe", "Video.UI.exe", "SystemSettingsBroker.exe", "SearchProtocolHost.exe", "SearchFilterHost.exe", "DataExchangeHost.exe",
+		"LockApp.exe"
 	};
 
 	if (hSnapshot != INVALID_HANDLE_VALUE)

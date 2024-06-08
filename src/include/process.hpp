@@ -9,6 +9,7 @@ class Process
 {
 public:
     Process() = default;
+    ~Process() noexcept { }
 
     Process(const Process& other) = delete;
     Process(Process&& other) = delete;

@@ -1,4 +1,5 @@
 #include "..\src\include\render.hpp"
+#include "include/fonts.h"
 
 #include "..\dependencies\imgui\imgui.h"
 #include "..\dependencies\imgui\imgui_impl_dx9.h"
@@ -183,6 +184,11 @@ void render::CreateImGui() noexcept
 	ImGuiIO& io = ::ImGui::GetIO();
 
 	io.IniFilename = NULL;
+
+	ImFontConfig fontConfig;
+	fontConfig.FontDataOwnedByAtlas = false;
+
+	io.Fonts->AddFontFromMemoryTTF(mainFont, sizeof(mainFont), 15.f, &fontConfig);
 
 	ImGui::StyleColorsDark();
 
