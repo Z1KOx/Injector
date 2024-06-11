@@ -246,5 +246,8 @@ void render::Render() noexcept
 	draw::InjectButton(progress);
 	draw::ExitButton();
 
+	ImGui::SetCursorPos({ 500, 295 });
+	ImGui::Text("Place holder");
+
 	ImGui::End();
 }

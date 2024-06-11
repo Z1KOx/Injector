@@ -34,7 +34,7 @@ private:
     void createRemoteThread();
 
     // Utility functions
-    [[nodiscard]] size_t getDllSize(const std::string& dllPath) const noexcept;
+    [[nodiscard]] size_t getDllSize(const std::string& dllPath) const;
 
     // Error handling functions
     [[nodiscard]] std::string getLastErrorAsString() const noexcept;

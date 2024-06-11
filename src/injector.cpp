@@ -147,7 +147,7 @@ void Injector::createRemoteThread()
 		throw std::runtime_error("CreateRemoteThread failed");
 }
 
-[[nodiscard]] size_t Injector::getDllSize(const std::string& dllPath) const noexcept
+[[nodiscard]] size_t Injector::getDllSize(const std::string& dllPath) const
 {
 	struct stat fileStat;
 	if (stat(dllPath.c_str(), &fileStat) != 0)
