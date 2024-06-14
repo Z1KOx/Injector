@@ -7,7 +7,7 @@
 
 namespace draw
 {
-	void MenuBar()
+	void menuBar()
 	{
 		ImGui::SetCursorPos({ 5.f, 2.f });
 		ImGui::Text("Injector");
@@ -19,7 +19,7 @@ namespace draw
 		drawList->AddLine({ 0.f, 20.f }, { 700.f, 20.f }, IM_COL32(22, 22, 26, 255), 1.f);
 	}
 
-	void InjectButton(std::vector<std::string>& progress)
+	void injectButton(std::vector<std::string>& progress)
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 7.f);
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
@@ -48,7 +48,7 @@ namespace draw
 		ImGui::PopStyleColor(4);
 	}
 
-	void ExitButton()
+	void exitButton()
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 7.f);
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
@@ -67,7 +67,7 @@ namespace draw
 		ImGui::PopStyleColor(4);
 	}
 
-	void Console(const std::vector<std::string>& progress, const std::string& selectedProc)
+	void console(const std::vector<std::string>& progress, const std::string& selectedProc)
 	{
 		ImGui::SetCursorPos({ 405.f, 28.f });
 		ImGui::Text("Console");
@@ -118,12 +118,33 @@ namespace draw
 		}
 	}
 
-	[[nodiscard]] std::string ProcessList(const std::set<Process::info>& processInfo)
+	[[nodiscard]] std::string processList(const std::set<Process::info>& processInfo)
 	{
 		static std::string selectedProc;
 
 		ImGui::SetCursorPos({ 10.f, 28.f });
 		ImGui::Text("Process List");
+
+		const auto processNum{ processInfo.size() };
+		ImGui::SetCursorPos({ 87.f, 25.f });
+		ImGui::TextColored(ImVec4(ImColor(255, 0, 0, 255)), "{ ? }");
+		if(ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+		{
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 10.0f);
+
+			ImGui::SetNextWindowSize({ 259.f, 74.f });
+
+			ImGui::BeginTooltip();
+
+			ImGui::SetCursorPos({ 10.f, 10.f });
+			ImGui::TextWrapped("If you can't find your process, click the Refresh button.");
+			ImGui::SetCursorPos({ 10.f, 50.f });
+			ImGui::TextWrapped("Current running processes: %d", processNum);
+
+			ImGui::EndTooltip();
+
+			ImGui::PopStyleVar();
+		}
 
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 10.f);
 
@@ -183,7 +204,7 @@ namespace draw
 		return selectedProc;
 	}
 
-	void RefreshButton(std::set<Process::info>& processInfo)
+	void refreshButton(std::set<Process::info>& processInfo)
 	{
 		const Process proc;
 		static auto refresh{ false };
@@ -237,14 +258,14 @@ void render::Render() noexcept
 	const Process proc;
 	static std::set<Process::info> processInfo = proc.processInformation();
 
-	draw::RefreshButton(processInfo);
-	const auto selectedProc = draw::ProcessList(processInfo);
+	draw::refreshButton(processInfo);
+	const auto selectedProc = draw::processList(processInfo);
 
 	static std::vector<std::string> progress{};
-	draw::MenuBar();
-	draw::Console(progress, selectedProc);
-	draw::InjectButton(progress);
-	draw::ExitButton();
+	draw::menuBar();
+	draw::console(progress, selectedProc);
+	draw::injectButton(progress);
+	draw::exitButton();
 
 	ImGui::SetCursorPos({ 500, 295 });
 	ImGui::Text("Place holder");
