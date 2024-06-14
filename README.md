@@ -24,10 +24,10 @@ Generate a thread within the target process to load the DLL
 
 # How to use this injector?
 ### 1. Select a process
-Find the target process in the 'process list' and select it
+Find the target process in the 'Process List' and select it
 
 ### 2. Select your DLL
-Click on the 'inject' button and choose your DLL
+Click on the 'Inject' button and choose your DLL
 
 # Getting Started
 ### 1. Clone this project using Git
