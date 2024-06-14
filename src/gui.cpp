@@ -9,14 +9,14 @@ namespace draw
 {
 	void menuBar()
 	{
-		ImGui::SetCursorPos({ 5.f, 2.f });
+		ImGui::SetCursorPos({ 5.f, 0.f });
 		ImGui::Text("Injector");
 
 		ImGui::SameLine(60.f);
 		ImGui::TextColored(ImVec4(ImColor(119, 99, 191, 255)), "v1.0");
 
 		const auto drawList = ImGui::GetWindowDrawList();
-		drawList->AddLine({ 0.f, 20.f }, { 700.f, 20.f }, IM_COL32(22, 22, 26, 255), 1.f);
+		drawList->AddLine({ 0.f, 19.f }, { 700.f, 19.f }, IM_COL32(22, 22, 26, 255), 1.f);
 	}
 
 	void injectButton(std::vector<std::string>& progress)
@@ -29,8 +29,8 @@ namespace draw
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(ImColor(46, 46, 55, 255)));
 		ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(ImColor(30, 30, 32, 255)));
 
-		ImGui::SetCursorPos({ 5.f, 260.f });
-		if (ImGui::Button("Inject", { 390.f, 40.f }))
+		ImGui::SetCursorPos({ 190.f, 240.f });
+		if (ImGui::Button("Inject", { 205.f, 85.f }))
 		{
 			FileDialog dialog;
 
@@ -58,8 +58,8 @@ namespace draw
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(ImColor(21, 21, 23, 255)));
 		ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(ImColor(30, 30, 32, 255)));
 
-		ImGui::SetCursorPos({ 5.f, 305.f });
-		if (ImGui::Button("Exit", { 190.f, 40.f })) {
+		ImGui::SetCursorPos({ 5.f, 285.f });
+		if (ImGui::Button("Exit", { 180.f, 40.f })) {
 			render::isRunning = false;
 		}
 
@@ -69,14 +69,14 @@ namespace draw
 
 	void console(const std::vector<std::string>& progress, const std::string& selectedProc)
 	{
-		ImGui::SetCursorPos({ 405.f, 28.f });
+		ImGui::SetCursorPos({ 405.f, 5.f });
 		ImGui::Text("Console");
 
 		ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(ImColor(162, 141, 238, 255)));
 
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 10.f);
 
-		ImGui::SetCursorPos({ 400.f, 45.f });
+		ImGui::SetCursorPos({ 400.f, 25.f });
 		ImGui::BeginChild("ConsoleBg", { 295.f, 210.f });
 		{
 			ImGui::PopStyleVar();
@@ -92,13 +92,13 @@ namespace draw
 			}
 
 			const auto drawList = ImGui::GetWindowDrawList();
-			drawList->AddLine({ 400.f, 69.f }, { 700.f, 69.f }, IM_COL32(97, 82, 115, 255), 1.f);
+			drawList->AddLine({ 400.f, 77.f }, { 700.f, 77.f }, IM_COL32(97, 82, 115, 255), 1.f);
 
 			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(ImColor(17, 17, 17, 255)));
 			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(ImColor(42, 39, 46, 255)));
 
-			ImGui::SetCursorPos({ 0.f, 25.f });
-			ImGui::BeginChild("progressBg", { 295.f, 185.f }, ImGuiChildFlags_Border);
+			ImGui::SetCursorPos({ 0.f, 30.f });
+			ImGui::BeginChild("progressBg", { 295.f, 180.f }, ImGuiChildFlags_Border);
 			{
 				ImGui::SetCursorPosY(3.f);
 				if (!progress.empty()) {
@@ -122,11 +122,11 @@ namespace draw
 	{
 		static std::string selectedProc;
 
-		ImGui::SetCursorPos({ 10.f, 28.f });
+		ImGui::SetCursorPos({ 10.f, 5.f });
 		ImGui::Text("Process List");
 
 		const auto processNum{ processInfo.size() };
-		ImGui::SetCursorPos({ 87.f, 25.f });
+		ImGui::SetCursorPos({ 87.f, 3.f });
 		ImGui::TextColored(ImVec4(ImColor(255, 0, 0, 255)), "{ ? }");
 		if(ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
 		{
@@ -150,7 +150,7 @@ namespace draw
 
 		ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(ImColor(162, 141, 238, 255)));
 
-		ImGui::SetCursorPos({ 5.f, 45.f });
+		ImGui::SetCursorPos({ 5.f, 25.f });
 		ImGui::BeginChild("ProcessBg", { 390.f, 210.f });
 		{
 			ImGui::PopStyleVar();
@@ -165,13 +165,13 @@ namespace draw
 			ImGui::Text("Type");
 
 			const auto drawList = ImGui::GetWindowDrawList();
-			drawList->AddLine({ 5.f, 69.f }, { 400.f, 69.f }, IM_COL32(97, 82, 115, 255), 1.f);
+			drawList->AddLine({ 5.f, 77.f }, { 400.f, 77.f }, IM_COL32(97, 82, 115, 255), 1.f);
 
 			ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(ImColor(17, 17, 17, 255)));
 			ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(ImColor(42, 39, 46, 255)));
 
-			ImGui::SetCursorPos({ 0.f, 25.f });
-			ImGui::BeginChild("runningProcBg", { 390.f, 185.f }, ImGuiChildFlags_Border);
+			ImGui::SetCursorPos({ 0.f, 30.f });
+			ImGui::BeginChild("runningProcBg", { 390.f, 180.f }, ImGuiChildFlags_Border);
 			{
 				ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(ImColor(0, 85, 89, 200)));
 				ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(ImColor(0, 85, 89, 255)));
@@ -217,8 +217,8 @@ namespace draw
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(ImColor(21, 21, 23, 255)));
 		ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(ImColor(30, 30, 32, 255)));
 
-		ImGui::SetCursorPos({ 200.f, 305.f });
-		if (ImGui::Button("Refresh", { 195.f, 40.f })) {
+		ImGui::SetCursorPos({ 5.f, 240.f });
+		if (ImGui::Button("Refresh", { 180.f, 40.f })) {
 			refresh = true;
 		}
 		ImGui::PopStyleVar(2);
@@ -258,17 +258,23 @@ void render::Render() noexcept
 	const Process proc;
 	static std::set<Process::info> processInfo = proc.processInformation();
 
-	draw::refreshButton(processInfo);
-	const auto selectedProc = draw::processList(processInfo);
-
-	static std::vector<std::string> progress{};
 	draw::menuBar();
-	draw::console(progress, selectedProc);
-	draw::injectButton(progress);
-	draw::exitButton();
 
-	ImGui::SetCursorPos({ 500, 295 });
-	ImGui::Text("Place holder");
+	ImGui::SetCursorPos({ 0.f, 20.f });
+	ImGui::BeginChild("InjectorBg", { 700.f, 330.f }, ImGuiChildFlags_Border);
+	{
+		draw::refreshButton(processInfo);
+		const auto selectedProc = draw::processList(processInfo);
 
+		static std::vector<std::string> progress{};
+		draw::console(progress, selectedProc);
+		draw::injectButton(progress);
+		draw::exitButton();
+
+		ImGui::SetCursorPos({ 500.f, 280.f });
+		ImGui::Text("Place holder");
+
+		ImGui::EndChild();
+	}
 	ImGui::End();
 }
