@@ -6,6 +6,9 @@ Injects for you a dll into a process
 > - This injector has been tested on the Windows operating system.
 > - To build this project, you need to have CMake installed. You can install it <a href="https://cmake.org/download/">here</a>
 
+# GUI Preview
+![png](img/Preview.png)
+
 # How does this work?
 ### 1. Identify the target process
 Determine the process where the DLL will be injected
