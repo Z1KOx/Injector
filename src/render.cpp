@@ -1,5 +1,5 @@
 #include "..\src\include\render.hpp"
-#include "include/fonts.h"
+#include "include/font.hpp"
 
 #include "..\dependencies\imgui\imgui.h"
 #include "..\dependencies\imgui\imgui_impl_dx9.h"
