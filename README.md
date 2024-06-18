@@ -1,11 +1,13 @@
 ![gif](img/Injector.gif)
 
-### Injects for you a dynamic link library `DLL` into a process
+# Features
+- Easy process selection
+- Automated DLL injection
+- User-friendly interface
 
-> [!NOTE]
-> - This injector has been tested on the Windows operating system.
-> - This injector has only been tested on x86 processes.
-> - To build this project, you need to have CMake installed. You can install it <a href="https://cmake.org/download/">here</a>
+# Requirements
+- Windows OS
+- CMake for building. You can install it <a href="https://cmake.org/download/">here</a>
 
 # GUI Preview
 ![png](img/Preview.png)
