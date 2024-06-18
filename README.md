@@ -4,6 +4,7 @@ Injects for you a dll into a process
 
 > [!NOTE]
 > - This injector has been tested on the Windows operating system.
+> - This injector has only been tested on x86 processes.
 > - To build this project, you need to have CMake installed. You can install it <a href="https://cmake.org/download/">here</a>
 
 # GUI Preview
