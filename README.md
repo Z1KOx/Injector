@@ -1,6 +1,6 @@
 ![gif](img/Injector.gif)
 
-### Injects for you a dynamic link library `Dll` into a process
+### Injects for you a dynamic link library `DLL` into a process
 
 > [!NOTE]
 > - This injector has been tested on the Windows operating system.
