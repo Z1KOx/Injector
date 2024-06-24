@@ -13,18 +13,20 @@ namespace draw
 		ImGui::Text("Injector");
 
 		ImGui::SameLine(60.f);
-		ImGui::TextColored(ImVec4(ImColor(119, 99, 191, 255)), "v1.0");
+		ImGui::TextColored(ImVec4(ImColor(119, 99, 191, 255)), "v1.1");
 
 		const auto drawList = ImGui::GetWindowDrawList();
 		drawList->AddLine({ 0.f, 19.f }, { 700.f, 19.f }, IM_COL32(22, 22, 26, 255), 1.f);
 	}
 
-	void injectButton(std::vector<std::string>& progress, const std::string& selectedProc)
+	void injectButton(std::vector<std::string>& progress, const std::string& selectedProc, bool& bInjectClicked, static int& counter)
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 7.f);
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
 
 		ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(ImColor(30, 30, 32, 255)));
+
+		static auto lastInjectClicked{ false };
 
 		if (!selectedProc.empty())
 		{
@@ -36,7 +38,6 @@ namespace draw
 			if (ImGui::Button("Inject", { 205.f, 85.f }))
 			{
 				FileDialog dialog;
-
 				dialog.open();
 
 				const auto dllPath = dialog.getPath();
@@ -45,6 +46,17 @@ namespace draw
 				injector.injectDll();
 
 				progress = injector.getProgress();
+
+				bInjectClicked = true;
+				counter = 5000;
+				lastInjectClicked = true;
+			}
+			else
+			{
+				if (lastInjectClicked) {
+					lastInjectClicked = false;
+				}
+				bInjectClicked = false;
 			}
 		}
 		else
@@ -55,6 +67,8 @@ namespace draw
 
 			ImGui::SetCursorPos({ 190.f, 240.f });
 			ImGui::Button("Inject", { 205.f, 85.f });
+
+			bInjectClicked = false;
 		}
 
 		ImGui::PopStyleVar(2);
@@ -80,7 +94,7 @@ namespace draw
 		ImGui::PopStyleColor(4);
 	}
 
-	void console(const std::vector<std::string>& progress, const std::string& selectedProc)
+	void console(const std::vector<std::string>& progress, const std::string& selectedProc, bool& bInjectClicked, static int& counter)
 	{
 		ImGui::SetCursorPos({ 405.f, 5.f });
 		ImGui::Text("Console");
@@ -94,8 +108,7 @@ namespace draw
 		{
 			ImGui::PopStyleVar();
 
-			const std::string truncatedName = (strlen(selectedProc.c_str()) > 30) ? std::string(selectedProc.c_str()).substr(0, 30 - 3) + "..."
-				: std::string(selectedProc.c_str());
+			const auto truncatedName = (selectedProc.length() > 30) ? selectedProc.substr(0, 27) + "..." : selectedProc;
 			ImGui::SetCursorPos({ 5.f, 5.f });
 			if (!selectedProc.empty()) {
 				ImGui::Text("Target - %s", truncatedName.c_str());
@@ -113,12 +126,25 @@ namespace draw
 			ImGui::SetCursorPos({ 0.f, 30.f });
 			ImGui::BeginChild("progressBg", { 295.f, 270.f }, ImGuiChildFlags_Border);
 			{
+				static auto bPrint{ false };
+				if (bInjectClicked) {
+					bPrint = true;
+				}
+
+				if (counter == -8)
+				{
+					bPrint = false;
+					bInjectClicked = false;
+				}
+
 				ImGui::SetCursorPosY(3.f);
-				if (!progress.empty()) {
+				if (!progress.empty() && bPrint) {
 					for (const auto& status : progress)
 					{
 						ImGui::SetCursorPosX(5.f);
 						ImGui::Text("%s", status.c_str());
+
+						--counter;
 					}
 				}
 
@@ -194,6 +220,7 @@ namespace draw
 				{
 					const std::string truncatedName = (strlen(proc.name) > 20) ? std::string(proc.name).substr(0, 20 - 3) + "..."
 						: std::string(proc.name);
+
 					ImGui::SetCursorPosX(5.f);
 					if (ImGui::Selectable(truncatedName.c_str())) {
 						selectedProc = proc.name;
@@ -219,7 +246,6 @@ namespace draw
 
 	void refreshButton(std::set<Process::info>& processInfo)
 	{
-		const Process proc;
 		static auto refresh{ false };
 
 		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 7.f);
@@ -234,11 +260,13 @@ namespace draw
 		if (ImGui::Button("Refresh", { 180.f, 40.f })) {
 			refresh = true;
 		}
+
 		ImGui::PopStyleVar(2);
 		ImGui::PopStyleColor(4);
 
 		if (refresh)
 		{
+			const Process proc;
 			processInfo = proc.processInformation();
 			refresh = false;
 		}
@@ -278,10 +306,14 @@ void render::Render() noexcept
 	{
 		draw::refreshButton(processInfo);
 		const auto selectedProc = draw::processList(processInfo);
+		static std::vector<std::string> progress;
 
-		static std::vector<std::string> progress{};
-		draw::console(progress, selectedProc);
-		draw::injectButton(progress, selectedProc);
+		static auto bInjectClicked{ false };
+		static auto counter{ 5000 };
+
+		draw::injectButton(progress, selectedProc, bInjectClicked, counter);
+		draw::console(progress, selectedProc, bInjectClicked, counter);
+
 		draw::exitButton();
 
 		ImGui::EndChild();
