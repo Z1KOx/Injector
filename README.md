@@ -12,7 +12,7 @@
 # GUI Preview
 ![png](img/Preview.png)
 
-# How does this work?
+# How does this work
 ### 1. Identify the target process
 Determine the process where the DLL will be injected
 
@@ -28,7 +28,7 @@ Copy the DLL file path into the reserved memory space of the target process
 ### 5. Create a remote thread
 Generate a thread within the target process to load the DLL
 
-# How to use this injector?
+# How to use this injector
 ### 1. Select a process
 Find the target process in the 'Process List' and select it
 
