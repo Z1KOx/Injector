@@ -8,14 +8,14 @@
 class Injector
 {
 public:
-    explicit Injector(const char* dllPath, const char* procName) noexcept;
+    explicit Injector( const char* dllPath, const char* procName ) noexcept;
     ~Injector() noexcept;
 
     // Deleted copy constructor, copy assignment operator, move constructor, and move assignment operator
-    Injector(const Injector& other) = delete;
-    Injector(Injector&& other) = delete;
-    Injector& operator=(const Injector& other) = delete;
-    Injector& operator=(Injector&& other) = delete;
+    Injector( const Injector& other )            = delete;
+    Injector( Injector&& other )                 = delete;
+    Injector& operator=( const Injector& other ) = delete;
+    Injector& operator=( Injector&& other )      = delete;
 
     // Executes the DLL injection process
     void injectDll();
@@ -34,11 +34,11 @@ private:
     void createRemoteThread();
 
     // Utility functions
-    [[nodiscard]] size_t getDllSize(const std::string& dllPath) const;
+    [[nodiscard]] size_t getDllSize( const std::string& dllPath ) const;
 
     // Error handling functions
     [[nodiscard]] std::string getLastErrorAsString() const noexcept;
-    void showError(const std::string& msg, const std::string& title) const noexcept;
+    void showError( const std::string& msg, const std::string& title ) const noexcept;
 private:
     const char* m_dllPath{ nullptr };
     const char* m_procName{ nullptr };

@@ -10,12 +10,12 @@ class Process
 {
 public:
 	Process() = default;
-	~Process() noexcept { }
+	~Process() noexcept = default;
 
-	Process(const Process& other) = delete;
-	Process(Process&& other) = delete;
-	Process& operator=(const Process& other) = delete;
-	Process& operator=(Process&& other) = delete;
+	Process( const Process& other )            = delete;
+	Process( Process&& other )                 = delete;
+	Process& operator=( const Process& other ) = delete;
+	Process& operator=( Process&& other )      = delete;
 
 public:
 	struct info
@@ -24,11 +24,11 @@ public:
 		DWORD pid{ 0 };
 		BOOL is64Bit{ false };
 
-		bool operator<(const info& other) const {
-			std::string thisName(name);
-			std::string otherName(other.name);
-			std::ranges::transform(thisName.begin(), thisName.end(), thisName.begin(), ::tolower);
-			std::ranges::transform(otherName.begin(), otherName.end(), otherName.begin(), ::tolower);
+		bool operator< ( const info& other ) const {
+			std::string thisName( name );
+			std::string otherName( other.name );
+			std::ranges::transform( thisName.begin(), thisName.end(), thisName.begin(), ::tolower );
+			std::ranges::transform( otherName.begin(), otherName.end(), otherName.begin(), ::tolower );
 			return thisName < otherName;
 		}
 	};
