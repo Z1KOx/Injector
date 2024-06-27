@@ -10,7 +10,7 @@
 - CMake for building. You can install it <a href="https://cmake.org/download/">here</a>
 
 # GUI Preview
-![png](img/Preview.png)
+![png](img/Preview_v1.1.png)
 
 # How does this work
 ### 1. Identify the target process
