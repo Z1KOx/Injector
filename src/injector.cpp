@@ -16,21 +16,23 @@
 
 
 
-Injector::Injector(const char* dllPath, const char* procName) noexcept
+Injector::Injector( const char* dllPath, const char* procName ) noexcept
 	: m_dllPath(dllPath), m_procName(procName)
 {
 }
 
 Injector::~Injector() noexcept
 {
-	if (m_hThread)  CloseHandle(m_hThread);
+	if ( m_hThread ) {
+		CloseHandle( m_hThread );
+	}
 }
 
 
 
 void Injector::injectDll()
 {
-	m_progress.emplace_back("Opening the DLL");
+	m_progress.emplace_back( "Opening the DLL" );
 
 	// Injection process
 	try
@@ -41,42 +43,42 @@ void Injector::injectDll()
 		writeMemory();        // Write the DLL path to the allocated memory
 		createRemoteThread(); // Create a remote thread in the target process to load the DLL
 	}
-	catch (const std::exception& e) {
-		showError(e.what(), "Injection Error");
+	catch ( const std::exception& e ) {
+		showError( e.what(), "Injection Error" );
 	}
 
 	// Thread process
-	if (m_hThread)
+	if ( m_hThread )
 	{
-		m_progress.emplace_back("Waiting for thread to finish");
+		m_progress.emplace_back( "Waiting for thread to finish" );
 		
 		// Wait for the remote thread to complete its execution
-		WaitForSingleObject(m_hThread, INFINITE);
-		CloseHandle(m_hThread);
+		WaitForSingleObject( m_hThread, INFINITE );
+		CloseHandle( m_hThread );
 	}
 
-	m_progress.emplace_back("Injection successful");
+	m_progress.emplace_back( "Injection successful" );
 }
 
 void Injector::obtainPID()
 {
-	m_progress.emplace_back("Obtaining PID");
+	m_progress.emplace_back( "Obtaining PID" );
 
 	// Create a snapshot of currently running processes
 	const auto hSnapShot{ CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0) };
-	if (hSnapShot == INVALID_HANDLE_VALUE)
-		throw std::runtime_error("Failed to create snapshot of processes");
+	if ( hSnapShot == INVALID_HANDLE_VALUE )
+		throw std::runtime_error( "Failed to create snapshot of processes" );
 
 	// Initialize pe struct
 	PROCESSENTRY32 pe;
-	pe.dwSize = sizeof(pe);
+	pe.dwSize = sizeof( pe );
 
 	auto found{ false };
 	// Loop through all the processes in the snapshot
-	for (bool process = Process32First(hSnapShot, &pe); process; process = Process32Next(hSnapShot, &pe))
+	for ( bool process = Process32First(hSnapShot, &pe); process; process = Process32Next(hSnapShot, &pe) )
 	{
 		// If the process is not found
-		if (_stricmp(pe.szExeFile, m_procName) != 0)
+		if ( _stricmp(pe.szExeFile, m_procName) != 0 )
 			continue;
 
 		// Assign m_PID to the found PID
@@ -85,9 +87,9 @@ void Injector::obtainPID()
 		break;
 	}
 
-	CloseHandle(hSnapShot);
+	CloseHandle( hSnapShot );
 
-	if (!found)
+	if ( !found )
 		throw std::runtime_error("Process not found");
 }
 
@@ -95,36 +97,36 @@ void Injector::obtainPID()
 
 void Injector::openProcess()
 {
-	m_progress.emplace_back("Opening target process");
+	m_progress.emplace_back( "Opening target process" );
 
 	// Open a handle to the target process with all access rights
-	m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, TRUE, m_PID);
-	if (!m_hProcess)
-		throw std::runtime_error("OpenProcess failed");
+	m_hProcess = OpenProcess( PROCESS_ALL_ACCESS, TRUE, m_PID );
+	if ( !m_hProcess )
+		throw std::runtime_error( "OpenProcess failed" );
 }
 
 void Injector::allocateMemory()
 {
 	// Allocate memory in the target process for our DLL
-	m_lpBaseAddress = VirtualAllocEx(m_hProcess, nullptr, strlen(m_dllPath) + 1, MEM_COMMIT, PAGE_READWRITE);
-	if (!m_lpBaseAddress)
-		throw std::runtime_error("VirtualAllocEx failed");
+	m_lpBaseAddress = VirtualAllocEx( m_hProcess, nullptr, strlen(m_dllPath) + 1, MEM_COMMIT, PAGE_READWRITE );
+	if ( !m_lpBaseAddress )
+		throw std::runtime_error( "VirtualAllocEx failed" );
 
 	std::stringstream ss;
 	ss << "0x" << std::hex << reinterpret_cast<uintptr_t>(m_lpBaseAddress);
 	const std::string addressString = ss.str();
 
-	m_progress.emplace_back("Allocated memory in ");
-	m_progress.back().append(addressString);
+	m_progress.emplace_back( "Allocated memory in " );
+	m_progress.back().append( addressString );
 }
 
 void Injector::writeMemory()
 {
 	// Write our DLL memory into the target process
-	if (!WriteProcessMemory(m_hProcess, m_lpBaseAddress, m_dllPath, strlen(m_dllPath) + 1, nullptr))
-		throw std::runtime_error("WriteProcessMemory failed");
+	if ( !WriteProcessMemory(m_hProcess, m_lpBaseAddress, m_dllPath, strlen(m_dllPath) + 1, nullptr) )
+		throw std::runtime_error( "WriteProcessMemory failed" );
 
-	const size_t dllSize = getDllSize(m_dllPath);
+	const size_t dllSize = getDllSize( m_dllPath );
 
 	const uintptr_t startAddress = reinterpret_cast<uintptr_t>(m_lpBaseAddress);
 	const uintptr_t endAddress = startAddress + dllSize;
@@ -133,25 +135,25 @@ void Injector::writeMemory()
 	ss << "0x" << std::hex << endAddress;
 	const std::string addressString = ss.str();
 
-	m_progress.emplace_back("Write until memory ");
-	m_progress.back().append(addressString);
+	m_progress.emplace_back( "Write until memory " );
+	m_progress.back().append( addressString );
 }
 
 void Injector::createRemoteThread()
 {
-	m_progress.emplace_back("Creating remote thread");
+	m_progress.emplace_back( "Creating remote thread" );
 
 	// Create a thread inside the target process so our DLL can run there
-	m_hThread = CREATE_THREAD(m_hProcess, m_lpBaseAddress);
-	if (!m_hThread)
-		throw std::runtime_error("CreateRemoteThread failed");
+	m_hThread = CREATE_THREAD( m_hProcess, m_lpBaseAddress );
+	if ( !m_hThread )
+		throw std::runtime_error( "CreateRemoteThread failed" );
 }
 
-[[nodiscard]] size_t Injector::getDllSize(const std::string& dllPath) const
+[[nodiscard]] size_t Injector::getDllSize( const std::string& dllPath ) const
 {
 	struct stat fileStat;
-	if (stat(dllPath.c_str(), &fileStat) != 0)
-		throw std::runtime_error("Failed to get file size for DLL: " + dllPath);
+	if ( stat(dllPath.c_str(), &fileStat) != 0 )
+		throw std::runtime_error( "Failed to get file size for DLL: " + dllPath );
 	return static_cast<size_t>(fileStat.st_size);
 }
 
@@ -159,33 +161,39 @@ void Injector::createRemoteThread()
 {
 	// Retrieve the error message ID
 	const auto errorMsgID = ::GetLastError();
-	if (errorMsgID == 0)
+	if ( errorMsgID == 0 )
 		return "errorMsgID = 0";
 
 	// Retrieve the error message string
 	LPSTR msgBuffer{ nullptr };
-	const size_t size = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-		FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, errorMsgID,
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPSTR>(&msgBuffer), 0, nullptr);
+	const size_t size = FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+	                                   FORMAT_MESSAGE_FROM_SYSTEM |
+		                               FORMAT_MESSAGE_IGNORE_INSERTS,
+		                               nullptr,
+		                               errorMsgID,
+		                               MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		                               reinterpret_cast<LPSTR>(&msgBuffer),
+		                               0, 
+		                               nullptr );
 
 	// Convert the message to a std::string
-	std::string msg(msgBuffer, size);
+	std::string msg( msgBuffer, size );
 
 	// Free the buffer allocated by FormatMessage
-	LocalFree(msgBuffer);
+	LocalFree( msgBuffer );
 
 	return msg;
 }
 
-void Injector::showError(const std::string& msg, const std::string& title) const noexcept
+void Injector::showError( const std::string& msg, const std::string& title ) const noexcept
 {
 	// Construct an error message with additional information
 	std::ostringstream oss;
 	oss << msg << "\nError code: " << GetLastError() << '\n' << getLastErrorAsString();
 
 	// Display the error message in a message box
-	MessageBox(nullptr, oss.str().c_str(), title.c_str(), MB_OK | MB_ICONERROR);
+	MessageBox( nullptr, oss.str().c_str(), title.c_str(), MB_OK | MB_ICONERROR );
 
 	// Terminate the process with an error code
-	ExitProcess(EXIT_FAILURE);
+	ExitProcess( EXIT_FAILURE );
 }
