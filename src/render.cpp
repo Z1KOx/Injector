@@ -59,7 +59,7 @@ long __stdcall WindowProcess(
 
 			if (render::position.x >= 0 &&
 				render::position.x <= render::WIDTH &&
-				render::position.y >= 0 && render::position.y <= 19)
+				render::position.y >= 0 && render::position.y <= 20)
 				SetWindowPos(
 					render::window,
 					HWND_TOPMOST,
